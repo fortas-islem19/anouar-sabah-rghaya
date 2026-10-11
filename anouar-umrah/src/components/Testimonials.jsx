@@ -114,13 +114,13 @@ export default function Testimonials() {
   return (
     <section className="section testimonials" id="testimonials">
       <div className="container">
-        <header className="section-head light">
+        <header className="section-head light reveal">
           <span className="eyebrow">آراء المعتمرين</span>
           <h2>شهادات من عاشوا التجربة معنا</h2>
           <p>استمع وشاهد ما يقوله ضيوف الرحمن الذين سافروا مع أنوار الصباح – فرع الرغاية.</p>
         </header>
 
-        <div className="tabs" role="tablist">
+        <div className="tabs reveal" role="tablist">
           <button role="tab" aria-selected={tab === 'video'} className={tab === 'video' ? 'active' : ''} onClick={() => setTab('video')}>
             <Play width="16" height="16" /> فيديوهات
           </button>
@@ -131,11 +131,11 @@ export default function Testimonials() {
 
         {tab === 'video' ? (
           <div className="videos-grid">
-            {videoTestimonials.map((v) => <VideoCard key={v.id} item={v} />)}
+            {videoTestimonials.map((v, i) => <div className="reveal" style={{ '--i': i }} key={v.id}><VideoCard item={v} /></div>)}
           </div>
         ) : (
           <div className="audios-grid">
-            {audioTestimonials.map((a) => <AudioCard key={a.id} item={a} activeId={activeId} setActiveId={setActiveId} />)}
+            {audioTestimonials.map((a, i) => <div className="reveal" style={{ '--i': i }} key={a.id}><AudioCard item={a} activeId={activeId} setActiveId={setActiveId} /></div>)}
           </div>
         )}
       </div>

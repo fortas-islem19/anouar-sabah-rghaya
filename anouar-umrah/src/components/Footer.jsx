@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     <footer className="site-footer" id="contact">
       <div className="container footer-top">
-        <div className="footer-visit">
+        <div className="footer-visit reveal">
           <img src="./images/agency-front.jpg" alt={`واجهة ${agency.name} – ${agency.branch}`} loading="lazy" />
           <div className="visit-card">
             <span className="eyebrow">زورونا</span>
@@ -15,7 +15,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="footer-cols">
+        <div className="footer-cols reveal" style={{ '--i': 1 }}>
           <div>
             <h4>اتصلوا بنا</h4>
             <ul className="phones">

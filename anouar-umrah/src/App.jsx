@@ -7,9 +7,11 @@ import Testimonials from './components/Testimonials.jsx';
 import BookingForm from './components/BookingForm.jsx';
 import Footer from './components/Footer.jsx';
 import WhatsAppFab from './components/WhatsAppFab.jsx';
+import useReveal from './hooks/useReveal.js';
 
 export default function App() {
   const [selectedOfferId, setSelectedOfferId] = useState('');
+  useReveal();
 
   const chooseOffer = useCallback((id) => {
     setSelectedOfferId(id);
