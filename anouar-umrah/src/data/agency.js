@@ -9,9 +9,9 @@ export const agency = {
   phones: ['0770 707 501', '0563 008 012', '0563 008 013', '0563 008 014'],
   // رقم الواتساب الذي تصله طلبات الحجز (الصيغة الدولية بدون + أو 00)
   whatsapp: '213770707501',
-  // اختياري: رابط API أو Google Apps Script يستقبل الحجوزات بصيغة JSON (POST).
-  // إذا تُرك فارغاً، يُرسل الطلب عبر واتساب فقط.
-  bookingEndpoint: '',
+  // اختياري: رابط Google Apps Script (Web app) لحفظ الحجوزات في Google Sheets.
+  // طريقة الإعداد في google-apps-script/Code.gs و README. إذا تُرك فارغاً، يُرسل الطلب عبر واتساب فقط.
+  bookingEndpoint: 'https://script.google.com/macros/s/AKfycbwGKO6lNAwYz0oLbqnU5H3dA1zwweMK5XVrxdQqdSPPbtFoecWd62cAt0Yur8NP-0e1/exec',
   // ضع روابط الصفحات الرسمية هنا
   social: {
     facebook: 'https://www.facebook.com/',

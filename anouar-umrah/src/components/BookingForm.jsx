@@ -140,6 +140,33 @@ export default function BookingForm({ selectedOfferId, onOfferChange }) {
     return L.join('\n');
   };
 
+  // صف واحد في Google Sheets: المفاتيح هي عناوين الأعمدة
+  const buildSheetRow = (reference) => ({
+    'التاريخ': new Date().toLocaleString('fr-DZ', { timeZone: 'Africa/Algiers' }),
+    'رقم الطلب': reference,
+    'العرض': offer?.title || '',
+    'الفندق': hotel && hotel.id !== 'tbd' ? hotel.name : '',
+    'الغرفة': form.room ? ROOM_LABELS[form.room] : '',
+    'سعر الغرفة': roomPrice ?? '',
+    'تاريخ الانطلاق': form.departure,
+    'الاسم واللقب': form.fullName.trim(),
+    'الهاتف': `'${form.phone}`,
+    'واتساب': form.whatsappSame ? 'نفس الرقم' : `'${form.whatsapp}`,
+    'الولاية': form.wilaya,
+    'البلدية': form.commune.trim(),
+    'البالغون': Number(form.adults) || 0,
+    'أطفال 0-2': Number(form.baby) || 0,
+    'أطفال 2-12': Number(form.kid) || 0,
+    'أطفال مع سرير': Number(form.withBed) || 0,
+    'الإطعام': hotel?.meals ? (form.meals ? 'نعم' : 'لا') : '',
+    'جواز السفر': { yes: 'ساري', expiring: 'ينتهي قريباً', no: 'لا يملك' }[form.passport],
+    'أول عمرة': form.firstUmrah === 'yes' ? 'نعم' : 'لا',
+    'الدفع': form.payment === 'cash' ? 'دفعة واحدة' : 'بالتقسيط',
+    'وقت الاتصال': { any: 'أي وقت', morning: 'صباحاً', evening: 'مساءً' }[form.contactTime],
+    'المبلغ التقديري': estimate?.total ?? '',
+    'ملاحظات': form.notes.trim(),
+  });
+
   const submit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -149,10 +176,11 @@ export default function BookingForm({ selectedOfferId, onOfferChange }) {
 
     if (agency.bookingEndpoint) {
       try {
+        // text/plain لتفادي طلب CORS المسبق الذي لا يدعمه Google Apps Script
         await fetch(agency.bookingEndpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reference, ...form, offerTitle: offer?.title, hotelName: hotel?.name, roomPrice, estimate: estimate?.total ?? null, createdAt: new Date().toISOString() }),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(buildSheetRow(reference)),
         });
       } catch {
         /* نكمل عبر واتساب حتى لو فشل الإرسال */

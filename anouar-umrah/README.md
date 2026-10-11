@@ -37,7 +37,22 @@ npm run build    # نسخة النشر في مجلد dist/
 ## كيف تصل الحجوزات؟
 
 - عند تأكيد الاستمارة يُفتح **واتساب** برسالة جاهزة فيها كل معلومات الحجز، تُرسل إلى الرقم `whatsapp` في `agency.js`.
-- اختياري: ضع رابطاً في `bookingEndpoint` (API خاص أو Google Apps Script مرتبط بـ Google Sheets) لتُحفظ الحجوزات أيضاً بصيغة JSON.
+- اختياري: تُحفظ الحجوزات أيضاً في **Google Sheets** (انظر القسم التالي).
+
+## ربط الاستمارة بـ Google Sheets
+
+1. أنشئ جدولاً جديداً على [Google Sheets](https://sheets.new).
+2. من القائمة: **Extensions (الإضافات) ← Apps Script**.
+3. احذف الكود الموجود والصق محتوى الملف `google-apps-script/Code.gs`، ثم احفظ.
+4. **Deploy ← New deployment**، اختر النوع **Web app**:
+   - Execute as: **Me**
+   - Who has access: **Anyone**
+   ثم اضغط Deploy ووافق على الصلاحيات.
+5. انسخ رابط **Web app URL** (ينتهي بـ `/exec`) وضعه في `bookingEndpoint` داخل `src/data/agency.js`.
+6. أعد البناء `npm run build` وانشر.
+
+كل حجز جديد يُضاف كسطر في ورقة «الحجوزات»، وتُنشأ عناوين الأعمدة تلقائياً.
+عند تعديل الكود لاحقاً: **Deploy ← Manage deployments ← Edit ← New version** ليبقى نفس الرابط.
 
 ## ملاحظة على الأسعار
 
