@@ -9,12 +9,24 @@ const fmt = (s) => {
   return `${m}:${String(r).padStart(2, '0')}`;
 };
 
+// مشغّل فيسبوك الرسمي: يقبل رابط الفيديو أو الريلز كما هو
+const facebookEmbed = (url) =>
+  `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&width=360`;
+
 function VideoCard({ item }) {
-  const ready = item.src || item.youtubeId;
+  const ready = item.src || item.youtubeId || item.facebook;
   return (
     <figure className={`video-card ${ready ? '' : 'is-empty'}`}>
       <div className="video-frame">
-        {item.youtubeId ? (
+        {item.facebook ? (
+          <iframe
+            src={facebookEmbed(item.facebook)}
+            title={item.name || 'شهادة معتمر'}
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            allowFullScreen
+            loading="lazy"
+          />
+        ) : item.youtubeId ? (
           <iframe
             src={`https://www.youtube.com/embed/${item.youtubeId}`}
             title={item.name || 'شهادة معتمر'}
