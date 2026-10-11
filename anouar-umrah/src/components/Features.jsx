@@ -13,8 +13,8 @@ export default function Features() {
   return (
     <section className="features">
       <div className="container features-grid">
-        {items.map(({ icon: Icon, title, text }) => (
-          <div className="feature" key={title}>
+        {items.map(({ icon: Icon, title, text }, i) => (
+          <div className="feature reveal" style={{ '--i': i }} key={title}>
             <span className="feature-icon"><Icon /></span>
             <div>
               <strong>{title}</strong>

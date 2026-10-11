@@ -177,7 +177,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange }) {
     return (
       <section className="section booking" id="booking">
         <div className="container">
-          <div className="booking-done">
+          <div className="booking-done reveal">
             <span className="done-icon"><Check width="40" height="40" /></span>
             <h2>تم تسجيل طلبك بنجاح</h2>
             <p>رقم طلبك: <b>{ref}</b></p>
@@ -197,7 +197,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange }) {
   return (
     <section className="section booking" id="booking">
       <div className="container booking-grid">
-        <aside className="booking-side">
+        <aside className="booking-side reveal">
           <span className="eyebrow">استمارة الحجز</span>
           <h2>احجز عمرتك الآن</h2>
           <p>املأ الاستمارة وسيتواصل معك فريق أنوار الصباح – {agency.branch} لتأكيد الحجز وشرح الوثائق المطلوبة.</p>
@@ -235,7 +235,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange }) {
           </ul>
         </aside>
 
-        <form className="booking-form" onSubmit={submit} noValidate>
+        <form className="booking-form reveal" style={{ '--i': 1 }} onSubmit={submit} noValidate>
           <fieldset>
             <legend><span>1</span> اختيار العرض</legend>
 

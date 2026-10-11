@@ -21,17 +21,17 @@ export default function Offers({ onChoose }) {
   return (
     <section className="section offers" id="offers">
       <div className="container">
-        <header className="section-head">
+        <header className="section-head reveal">
           <span className="eyebrow">العروض المتوفرة</span>
           <h2>اختر العرض الذي يناسبك</h2>
           <p>جميع الأسعار بالدينار الجزائري للشخص الواحد، حسب نوع الغرفة.</p>
         </header>
 
         <div className="offers-grid">
-          {offers.map((offer) => {
+          {offers.map((offer, i) => {
             const from = minPrice(offer);
             return (
-              <article className="offer-card" key={offer.id}>
+              <article className="offer-card reveal" style={{ '--i': i }} key={offer.id}>
                 <button className="offer-media" onClick={() => setPoster(offer)} aria-label={`عرض ملصق ${offer.title}`}>
                   <img src={offer.poster} alt={offer.title} loading="lazy" />
                   <span className="offer-badge">{offer.badge}</span>
@@ -79,7 +79,7 @@ export default function Offers({ onChoose }) {
           })}
         </div>
 
-        <div className="kids-prices">
+        <div className="kids-prices reveal">
           <h3>أسعار الأطفال</h3>
           <div className="kids-grid">
             <div><small>من 0 إلى 2 سنة (بدون سرير)</small><b>80.000 دج</b></div>
