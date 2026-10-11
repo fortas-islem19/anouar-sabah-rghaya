@@ -195,14 +195,14 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
     }
 
     try {
-      // text/plain لتفادي طلب CORS المسبق الذي لا يدعمه Google Apps Script
-      const res = await fetch(agency.bookingEndpoint, {
+      // no-cors + text/plain: الطريقة الموثوقة لإرسال البيانات إلى Google Apps Script من المتصفح
+      // (Google لا يسمح بقراءة الرد، لذا نعتبر الإرسال ناجحاً ما لم يحدث خطأ في الشبكة)
+      await fetch(agency.bookingEndpoint, {
         method: 'POST',
+        mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(buildSheetRow(reference)),
       });
-      const data = await res.json();
-      if (!data.ok) throw new Error(data.error);
       done();
     } catch {
       setStatus('error');
