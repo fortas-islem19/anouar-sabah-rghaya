@@ -291,6 +291,35 @@ legend span { width: 34px; height: 34px; border-radius: 50%; display: grid; plac
 .booking-done p { color: var(--muted); }
 .done-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 18px; }
 
+.send-error { background: #fdecec; border: 2px solid #f3b4b4; border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; display: grid; gap: 10px; justify-items: start; }
+.send-error p { margin: 0; color: #b02a2a; font-weight: 700; font-size: .92rem; }
+
+/* ===== صفحة الشكر ===== */
+.thanks {
+  position: relative; overflow: hidden; min-height: 100vh; display: grid; align-items: center;
+  background: linear-gradient(160deg, var(--navy) 0%, var(--blue) 55%, var(--blue-2) 100%);
+  padding: 120px 0 80px;
+}
+.thanks .container { position: relative; }
+.thanks-card {
+  max-width: 640px; margin: 0 auto; text-align: center; background: #fff; border-radius: 28px;
+  padding: 44px 32px 32px; box-shadow: var(--shadow-lg); border-top: 8px solid var(--yellow);
+  animation: zoom-in .8s cubic-bezier(.2,.8,.2,1) both;
+}
+.thanks-icon { width: 92px; height: 92px; animation: pop-in .6s .4s both; box-shadow: 0 0 0 12px rgba(37,211,102,.15); }
+.thanks-card h1 { margin: 14px 0 6px; font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 900; color: var(--navy); }
+.thanks-lead { color: var(--muted); margin: 0 auto 20px; max-width: 500px; }
+.thanks-ref { display: inline-flex; flex-direction: column; background: var(--navy); color: #fff; border: 2px solid var(--yellow); border-radius: 16px; padding: 8px 28px; margin-bottom: 20px; }
+.thanks-ref small { opacity: .8; }
+.thanks-ref b { font-size: 1.6rem; font-weight: 900; color: var(--yellow); letter-spacing: 1px; }
+.thanks-summary { margin: 0 0 18px; background: var(--yellow-soft); border-radius: 16px; padding: 6px 18px; text-align: start; }
+.thanks-summary div { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px dashed rgba(8,47,94,.15); }
+.thanks-summary div:last-child { border-bottom: 0; }
+.thanks-summary dt { color: var(--muted); font-weight: 700; }
+.thanks-summary dd { margin: 0; font-weight: 800; color: var(--navy); text-align: end; }
+.thanks-note { font-size: .9rem; color: var(--muted); margin: 0 0 6px; }
+.thanks-wa { display: inline-flex; align-items: center; gap: 6px; margin-top: 18px; color: #1a9e4b; font-weight: 800; }
+
 /* ===== التذييل ===== */
 .site-footer { background: var(--navy); color: #fff; }
 .footer-top { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; padding: 70px 0 50px; align-items: center; }
