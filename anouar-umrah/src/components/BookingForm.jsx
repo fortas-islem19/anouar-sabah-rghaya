@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { agency } from '../data/agency.js';
 import { offers, ROOM_LABELS, ROOM_CAPACITY, CHILD_PRICES, formatDZD } from '../data/offers.js';
-import { Check, WhatsApp } from './Icons.jsx';
+import { WhatsApp } from './Icons.jsx';
 
 const ROOM_ORDER = ['quint', 'quad', 'triple', 'double', 'single'];
 
@@ -40,10 +40,10 @@ const initial = {
 
 const phoneOk = (v) => /^0[567]\d{8}$/.test(v.replace(/\s|-/g, ''));
 
-export default function BookingForm({ selectedOfferId, onOfferChange }) {
+export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess }) {
   const [form, setForm] = useState(initial);
   const [errors, setErrors] = useState({});
-  const [status, setStatus] = useState('idle'); // idle | sending | done
+  const [status, setStatus] = useState('idle'); // idle | sending | error
   const [ref, setRef] = useState('');
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
@@ -167,6 +167,8 @@ export default function BookingForm({ selectedOfferId, onOfferChange }) {
     'ملاحظات': form.notes.trim(),
   });
 
+  const waUrl = (reference) => `https://wa.me/${agency.whatsapp}?text=${encodeURIComponent(buildMessage(reference))}`;
+
   const submit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -174,53 +176,40 @@ export default function BookingForm({ selectedOfferId, onOfferChange }) {
     const reference = `AS-${Date.now().toString(36).toUpperCase().slice(-6)}`;
     setRef(reference);
 
-    if (agency.bookingEndpoint) {
-      try {
-        // text/plain لتفادي طلب CORS المسبق الذي لا يدعمه Google Apps Script
-        await fetch(agency.bookingEndpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(buildSheetRow(reference)),
-        });
-      } catch {
-        /* نكمل عبر واتساب حتى لو فشل الإرسال */
-      }
+    const done = () => onSuccess({
+      reference,
+      name: form.fullName.trim(),
+      offer: offer?.title,
+      hotel: hotel && hotel.id !== 'tbd' ? hotel.name : '',
+      room: form.room ? ROOM_LABELS[form.room] : '',
+      departure: form.departure,
+      travelers: totalTravelers,
+      total: estimate?.total ?? null,
+    });
+
+    // بدون رابط Google Sheets: الإرسال عبر واتساب فقط
+    if (!agency.bookingEndpoint) {
+      window.open(waUrl(reference), '_blank', 'noopener');
+      done();
+      return;
     }
 
-    const url = `https://wa.me/${agency.whatsapp}?text=${encodeURIComponent(buildMessage(reference))}`;
-    window.open(url, '_blank', 'noopener');
-    setStatus('done');
-  };
-
-  const reset = () => {
-    setForm(initial);
-    onOfferChange('');
-    setErrors({});
-    setStatus('idle');
+    try {
+      // text/plain لتفادي طلب CORS المسبق الذي لا يدعمه Google Apps Script
+      const res = await fetch(agency.bookingEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(buildSheetRow(reference)),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+      done();
+    } catch {
+      setStatus('error');
+    }
   };
 
   const Err = ({ k }) => (errors[k] ? <span className="field-error">{errors[k]}</span> : null);
-
-  if (status === 'done') {
-    return (
-      <section className="section booking" id="booking">
-        <div className="container">
-          <div className="booking-done reveal">
-            <span className="done-icon"><Check width="40" height="40" /></span>
-            <h2>تم تسجيل طلبك بنجاح</h2>
-            <p>رقم طلبك: <b>{ref}</b></p>
-            <p>تم فتح واتساب لإرسال تفاصيل الحجز إلى الوكالة. إذا لم يُفتح تلقائياً، اضغط على الزر أدناه. سيتصل بك فريق {agency.branch} لتأكيد الحجز.</p>
-            <div className="done-actions">
-              <a className="btn btn-whatsapp" href={`https://wa.me/${agency.whatsapp}?text=${encodeURIComponent(buildMessage(ref))}`} target="_blank" rel="noopener noreferrer">
-                <WhatsApp width="20" height="20" /> إرسال عبر واتساب
-              </a>
-              <button className="btn btn-ghost-dark" onClick={reset}>حجز جديد</button>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className="section booking" id="booking">
@@ -425,6 +414,15 @@ export default function BookingForm({ selectedOfferId, onOfferChange }) {
             أوافق على أن تتواصل معي الوكالة لتأكيد الحجز، وأعلم أن المبلغ المعروض تقديري.
           </label>
           <Err k="consent" />
+
+          {status === 'error' && (
+            <div className="send-error" role="alert">
+              <p>تعذّر إرسال الطلب، تحقق من اتصالك بالإنترنت وأعد المحاولة، أو أرسله مباشرة عبر واتساب.</p>
+              <a className="btn btn-whatsapp btn-sm" href={waUrl(ref)} target="_blank" rel="noopener noreferrer">
+                <WhatsApp width="18" height="18" /> إرسال عبر واتساب
+              </a>
+            </div>
+          )}
 
           <button type="submit" className="btn btn-yellow btn-lg btn-block" disabled={status === 'sending'}>
             {status === 'sending' ? 'جارٍ الإرسال...' : 'تأكيد طلب الحجز'}
