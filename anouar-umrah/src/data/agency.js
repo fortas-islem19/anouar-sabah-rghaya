@@ -1,0 +1,24 @@
+// معلومات الوكالة — عدّلها هنا فقط وستتغيّر في كامل الصفحة
+export const agency = {
+  name: 'أنوار الصباح للسياحة والأسفار',
+  latinName: 'Anouarelsabah',
+  branch: 'فرع الرغاية',
+  slogan: 'في الجزائر نعدكم و في الحرمين نخدمكم',
+  motto: 'رحلاتكم .. أمانة في أعناقنا',
+  address: 'محل رقم 150 عمارة 06 قريشي 02 الرغاية، الجزائر',
+  phones: ['0770 707 501', '0563 008 012', '0563 008 013', '0563 008 014'],
+  // رقم الواتساب الذي تصله طلبات الحجز (الصيغة الدولية بدون + أو 00)
+  whatsapp: '213770707501',
+  // اختياري: رابط API أو Google Apps Script يستقبل الحجوزات بصيغة JSON (POST).
+  // إذا تُرك فارغاً، يُرسل الطلب عبر واتساب فقط.
+  bookingEndpoint: '',
+  // ضع روابط الصفحات الرسمية هنا
+  social: {
+    facebook: 'https://www.facebook.com/',
+    instagram: 'https://www.instagram.com/',
+    tiktok: 'https://www.tiktok.com/',
+  },
+  socialHandle: 'أنوار الصباح رغاية',
+  // ضع رابط خرائط Google للمحل إن وُجد
+  mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Reghaia+Alger',
+};
