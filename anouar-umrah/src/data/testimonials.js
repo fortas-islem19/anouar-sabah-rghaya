@@ -7,8 +7,8 @@
 // البطاقات التي ليس لها src أو facebook أو youtubeId تظهر كمكان فارغ "قريباً" حتى تضيف الشهادة الحقيقية.
 
 export const videoTestimonials = [
-  { id: 'v1', name: '', trip: '', src: '', poster: '', facebook: '', youtubeId: '' },
-  { id: 'v2', name: '', trip: '', src: '', poster: '', facebook: '', youtubeId: '' },
+  { id: 'v1', name: '', trip: '', src: '', poster: '', facebook: 'https://www.facebook.com/reel/1039920665439572', youtubeId: '' },
+  { id: 'v2', name: '', trip: '', src: '', poster: '', facebook: 'https://www.facebook.com/reel/3572991906187689', youtubeId: '' },
   { id: 'v3', name: '', trip: '', src: '', poster: '', facebook: '', youtubeId: '' },
 ];
 
