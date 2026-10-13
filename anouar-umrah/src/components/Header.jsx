@@ -5,6 +5,7 @@ import { Menu, Close } from './Icons.jsx';
 const links = [
   { href: '#offers', label: 'العروض' },
   { href: '#testimonials', label: 'آراء المعتمرين' },
+  { href: '#hotels', label: 'فنادقنا' },
   { href: '#booking', label: 'الحجز' },
   { href: '#contact', label: 'اتصل بنا' },
 ];

@@ -4,6 +4,7 @@ import Hero from './components/Hero.jsx';
 import Features from './components/Features.jsx';
 import Offers from './components/Offers.jsx';
 import Testimonials from './components/Testimonials.jsx';
+import Hotels from './components/Hotels.jsx';
 import BookingForm from './components/BookingForm.jsx';
 import ThankYou from './components/ThankYou.jsx';
 import Footer from './components/Footer.jsx';
@@ -60,6 +61,7 @@ export default function App() {
             <Features />
             <Offers onChoose={chooseOffer} />
             <Testimonials />
+            <Hotels />
             <BookingForm selectedOfferId={selectedOfferId} onOfferChange={setSelectedOfferId} onSuccess={showThanks} />
           </>
         )}
