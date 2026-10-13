@@ -19,6 +19,6 @@ export const agency = {
     tiktok: 'https://www.tiktok.com/',
   },
   socialHandle: 'أنوار الصباح رغاية',
-  // ضع رابط خرائط Google للمحل إن وُجد
-  mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Reghaia+Alger',
+  // رابط موقع المحل على خرائط Google
+  mapsUrl: 'https://maps.app.goo.gl/qCGuNnXPQ11C8hVx6',
 };
