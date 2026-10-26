@@ -1,23 +1,26 @@
 // العروض المتوفرة — مأخوذة من ملصقات الوكالة.
 // price: بالدينار الجزائري. null = السعر عند الاتصال.
 // featured: العرض الذي يظهر أولاً في أعلى الصفحة.
+// childBedDiscount: خصم الطفل مع سرير من سعر الغرفة (بدونه يدفع الطفل مع سرير سعر الغرفة كاملاً).
+// airports: مطارات الانطلاق المتاحة.
 // fromPrice: سعر «ابتداءً من» للعروض التي لا تُفصّل أسعار الغرف (بدون اختيار نوع الغرفة).
 
 export const ROOM_LABELS = {
-  single: 'أحادية',
   double: 'ثنائية',
   triple: 'ثلاثية',
   quad: 'رباعية',
   quint: 'خماسية',
 };
 
-export const ROOM_CAPACITY = { single: 1, double: 2, triple: 3, quad: 4, quint: 5 };
+export const ROOM_CAPACITY = { double: 2, triple: 3, quad: 4, quint: 5 };
 
 export const CHILD_PRICES = [
   { id: 'baby', label: 'من 0 إلى 2 سنة (بدون سرير)', price: 80000 },
   { id: 'kid', label: 'من 2 إلى 12 سنة (بدون سرير)', price: 150000 },
-  { id: 'withBed', label: 'طفل مع سرير (خصم من سعر الغرفة)', discount: 15000 },
+  { id: 'withBed', label: 'طفل مع سرير', withBed: true },
 ];
+
+const AIRPORTS = ['مطار الجزائر', 'مطار قسنطينة', 'مطار أدرار'];
 
 export const offers = [
   {
@@ -46,41 +49,64 @@ export const offers = [
   {
     id: 'dec-holiday',
     badge: '14 – 24 ديسمبر',
-    title: 'عمرة عطلة ديسمبر',
-    subtitle: 'في الفترة الممتدة من 14 إلى 24 ديسمبر – فندقان للاختيار',
+    title: 'عمرة العطلة 2026',
+    subtitle: 'من 14 إلى 24 ديسمبر – مكة المكرمة والمدينة المنورة',
     period: 'ديسمبر',
     departures: ['14 ديسمبر'],
-    poster: './images/offer-dec-holiday-rayan.jpg',
-    highlights: ['رحلات مباشرة وتنقلات مريحة', 'فندق ريان الجوار أو فندق إنفينيتي 5 نجوم بمكة المكرمة', 'تنظيم محكم ورعاية دائمة'],
+    airports: AIRPORTS,
+    poster: './images/offer-dec-holiday.jpg',
+    childrenPricing: true,
+    highlights: [
+      'الانطلاق من مطارات الجزائر – قسنطينة – أدرار',
+      'المدينة المنورة: فندق معين طيبة 3 نجوم',
+      'مكة المكرمة: فندق ريان الجوار أو فندق إنفينيتي 5 نجوم',
+      'الإطعام اختياري (في مكة فقط)',
+    ],
     hotels: [
       {
         id: 'rayan',
-        name: 'فندق ريان الجوار – مكة المكرمة',
-        rooms: { quint: 253000, quad: 263000, triple: 280000, double: 315000, single: 370000 },
+        name: 'فندق ريان الجوار (مكة) + معين طيبة (المدينة)',
+        rooms: { quint: 243000, quad: 253000, triple: 270000, double: 305000 },
+        meals: 30000,
       },
       {
         id: 'infinity',
-        name: 'فندق إنفينيتي 5 نجوم',
+        name: 'فندق إنفينيتي 5 نجوم (مكة) + معين طيبة (المدينة)',
         stars: 5,
-        rooms: { quint: 283000, quad: 302000, triple: 332000, double: 395000, single: 440000 },
+        rooms: { quint: 273000, quad: 292000, triple: 322000, double: 385000 },
+        meals: 35000,
       },
     ],
   },
   {
-    id: 'dec-infinity',
+    id: 'dec',
     badge: 'ديسمبر',
-    title: 'عمرة ديسمبر',
-    subtitle: 'من 01 إلى 13 ديسمبر ومن 25 إلى 31 ديسمبر – إقامة فاخرة في فندق إنفينيتي',
+    title: 'عمرة ديسمبر 2026',
+    subtitle: 'من 01 إلى 13 ديسمبر ومن 25 إلى 31 ديسمبر – مكة المكرمة والمدينة المنورة',
     period: 'ديسمبر',
     departures: ['01 ديسمبر', '25 ديسمبر'],
-    poster: './images/offer-dec-infinity.jpg',
-    highlights: ['فندق إنفينيتي 5 نجوم قريب من الحرم', 'إقامة مريحة وفندق راقي', 'خدمة متميزة وتنظيم محكم'],
+    airports: AIRPORTS,
+    poster: './images/offer-dec.jpg',
+    childrenPricing: true,
+    highlights: [
+      'الانطلاق من مطارات الجزائر – قسنطينة – أدرار',
+      'المدينة المنورة: فندق معين طيبة 3 نجوم',
+      'مكة المكرمة: فندق ريان الجوار أو فندق إنفينيتي 5 نجوم',
+      'الإطعام اختياري (في مكة فقط)',
+    ],
     hotels: [
       {
+        id: 'rayan',
+        name: 'فندق ريان الجوار (مكة) + معين طيبة (المدينة)',
+        rooms: { quint: 223000, quad: 233000, triple: 250000, double: 285000 },
+        meals: 30000,
+      },
+      {
         id: 'infinity',
-        name: 'فندق إنفينيتي 5 نجوم',
+        name: 'فندق إنفينيتي 5 نجوم (مكة) + معين طيبة (المدينة)',
         stars: 5,
-        rooms: { quint: 253000, quad: 272000, triple: 302000, double: 365000, single: 410000 },
+        rooms: { quint: 253000, quad: 272000, triple: 302000, double: 365000 },
+        meals: 35000,
       },
     ],
   },
@@ -93,18 +119,19 @@ export const offers = [
     departures: ['حسب الرزنامة'],
     poster: './images/offer-oct-nov.jpg',
     childrenPricing: true,
-    highlights: ['غرفة أحادية متوفرة', 'فندقان للاختيار', 'عمرة مقبولة وذنوب مغفورة'],
+    childBedDiscount: 15000,
+    highlights: ['فندقان للاختيار', 'عمرة مقبولة وذنوب مغفورة'],
     hotels: [
       {
         id: 'rayan',
         name: 'فندق ريان الجوار – عرض اقتصادي',
-        rooms: { quint: 205000, quad: 215000, triple: 230000, double: 258000, single: 345000 },
+        rooms: { quint: 205000, quad: 215000, triple: 230000, double: 258000 },
       },
       {
         id: 'infinity',
         name: 'فندق إنفينيتي 5 نجوم',
         stars: 5,
-        rooms: { quint: 229000, quad: 238000, triple: 263000, double: 299000, single: 435000 },
+        rooms: { quint: 229000, quad: 238000, triple: 263000, double: 299000 },
       },
     ],
   },

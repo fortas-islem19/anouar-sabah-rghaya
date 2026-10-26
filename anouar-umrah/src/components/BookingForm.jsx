@@ -3,7 +3,7 @@ import { agency } from '../data/agency.js';
 import { offers, ROOM_LABELS, ROOM_CAPACITY, CHILD_PRICES, formatDZD } from '../data/offers.js';
 import { WhatsApp } from './Icons.jsx';
 
-const ROOM_ORDER = ['quint', 'quad', 'triple', 'double', 'single'];
+const ROOM_ORDER = ['quint', 'quad', 'triple', 'double'];
 
 const WILAYAS = [
   'أدرار', 'الشلف', 'الأغواط', 'أم البواقي', 'باتنة', 'بجاية', 'بسكرة', 'بشار', 'البليدة', 'البويرة',
@@ -19,6 +19,7 @@ const initial = {
   hotelId: '',
   room: '',
   departure: '',
+  airport: '',
   fullName: '',
   phone: '',
   whatsappSame: true,
@@ -51,7 +52,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
   // مزامنة العرض المختار من بطاقات العروض
   useEffect(() => {
     if (selectedOfferId && selectedOfferId !== form.offerId) {
-      setForm((f) => ({ ...f, offerId: selectedOfferId, hotelId: '', room: '', departure: '', meals: false }));
+      setForm((f) => ({ ...f, offerId: selectedOfferId, hotelId: '', room: '', departure: '', airport: '', meals: false }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedOfferId]);
@@ -86,7 +87,8 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
       CHILD_PRICES.forEach((c) => {
         const n = Number(form[c.id]) || 0;
         if (!n) return;
-        const unit = c.discount ? roomPrice - c.discount : c.price;
+        // الطفل مع سرير يدفع سعر الغرفة (ناقص خصم العرض إن وُجد)
+        const unit = c.withBed ? roomPrice - (offer.childBedDiscount || 0) : c.price;
         lines.push({ label: `${n} × ${c.label}`, value: n * unit });
       });
     }
@@ -129,6 +131,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
     if (room) L.push(`الغرفة: ${ROOM_LABELS[room]} (${formatDZD(roomPrice)} للشخص)`);
     if (roomUpgraded) L.push(`(اختار غرفة ${ROOM_LABELS[form.room]} وتحولت إلى ${ROOM_LABELS[room]} بسبب عدد الأسرّة: ${beds})`);
     if (form.departure) L.push(`تاريخ الانطلاق: ${form.departure}`);
+    if (form.airport) L.push(`مطار الانطلاق: ${form.airport}`);
     L.push('');
     L.push(`الاسم: ${form.fullName}`);
     L.push(`الهاتف: ${form.phone}`);
@@ -161,6 +164,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
     'سعر الغرفة': roomPrice ?? '',
     'عدد الأسرّة': beds,
     'تاريخ الانطلاق': form.departure,
+    'مطار الانطلاق': form.airport,
     'الاسم واللقب': form.fullName.trim(),
     'الهاتف': `'${form.phone}`,
     'واتساب': form.whatsappSame ? 'نفس الرقم' : `'${form.whatsapp}`,
@@ -195,6 +199,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
       hotel: hotel && hotel.id !== 'tbd' ? hotel.name : '',
       room: room ? ROOM_LABELS[room] : '',
       departure: form.departure,
+      airport: form.airport,
       travelers: totalTravelers,
       total: estimate?.total ?? null,
     });
@@ -254,6 +259,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
                 {hotel && hotel.id !== 'tbd' && <p className="sum-line">{hotel.name}</p>}
                 {room && <p className="sum-line">غرفة {ROOM_LABELS[room]} — {formatDZD(roomPrice)} / للشخص</p>}
                 {form.departure && <p className="sum-line">الانطلاق: {form.departure}</p>}
+                {form.airport && <p className="sum-line">من: {form.airport}</p>}
                 <p className="sum-line">عدد المسافرين: {totalTravelers}</p>
                 {estimate ? (
                   <div className="sum-estimate">
@@ -291,7 +297,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
                     name="offerId"
                     value={o.id}
                     checked={form.offerId === o.id}
-                    onChange={() => { setForm((f) => ({ ...f, offerId: o.id, hotelId: '', room: '', departure: '', meals: false })); onOfferChange(o.id); }}
+                    onChange={() => { setForm((f) => ({ ...f, offerId: o.id, hotelId: '', room: '', departure: '', airport: '', meals: false })); onOfferChange(o.id); }}
                   />
                   <span className="opt-badge">{o.badge}</span>
                   <strong>{o.title}</strong>
@@ -342,6 +348,20 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
                   {offer.departures.map((d) => <option key={d} value={d}>{d}</option>)}
                   <option value="أريد الاستفسار عن التواريخ">أريد الاستفسار عن التواريخ</option>
                 </select>
+              </div>
+            )}
+
+            {offer?.airports && (
+              <div className="field">
+                <label>مطار الانطلاق</label>
+                <div className="chips">
+                  {offer.airports.map((a) => (
+                    <label key={a} className={`chip ${form.airport === a ? 'checked' : ''}`}>
+                      <input type="radio" name="airport" checked={form.airport === a} onChange={() => set('airport', a)} />
+                      {a}
+                    </label>
+                  ))}
+                </div>
               </div>
             )}
           </fieldset>
@@ -396,7 +416,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
                 <>
                   <Counter label="أطفال 0–2 سنة" hint="80.000 دج" name="baby" value={form.baby} onChange={(v) => set('baby', v)} />
                   <Counter label="أطفال 2–12 سنة" hint="بدون سرير • 150.000 دج" name="kid" value={form.kid} onChange={(v) => set('kid', v)} />
-                  <Counter label="طفل مع سرير" hint="خصم 15.000 دج" name="withBed" value={form.withBed} onChange={(v) => set('withBed', v)} />
+                  <Counter label="طفل مع سرير" hint={offer.childBedDiscount ? `سعر الغرفة – خصم ${formatDZD(offer.childBedDiscount)}` : 'بسعر الغرفة • يُحتسب سريراً'} name="withBed" value={form.withBed} onChange={(v) => set('withBed', v)} />
                 </>
               )}
             </div>

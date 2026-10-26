@@ -45,6 +45,7 @@ export const hotels = [
     id: 'moein',
     name: 'فندق معين طيبة',
     street: 'المدينة المنورة',
+    stars: 3,
     photos: [
       photo('moein', 1, 'فندق معين طيبة – المدينة المنورة'),
       photo('moein', 2, 'واجهة الفندق ومدخله'),
