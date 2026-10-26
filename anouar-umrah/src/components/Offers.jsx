@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { offers, minPrice, formatDZD, ROOM_LABELS } from '../data/offers.js';
 import { Calendar, Check, Close, Star } from './Icons.jsx';
 
-const ROOM_ORDER = ['quint', 'quad', 'triple', 'double', 'single'];
+const ROOM_ORDER = ['quint', 'quad', 'triple', 'double'];
 
 export default function Offers({ onChoose }) {
   const [poster, setPoster] = useState(null);
@@ -84,9 +84,9 @@ export default function Offers({ onChoose }) {
           <div className="kids-grid">
             <div><small>من 0 إلى 2 سنة (بدون سرير)</small><b>80.000 دج</b></div>
             <div><small>من 2 إلى 12 سنة (بدون سرير)</small><b>150.000 دج</b></div>
-            <div><small>الطفل مع سرير</small><b>خصم 15.000 دج</b></div>
+            <div><small>الطفل مع سرير</small><b>سعر الغرفة</b></div>
           </div>
-          <p>تُطبق على عرض أكتوبر – نوفمبر. الطفل مع سرير يُحتسب سريراً في الغرفة (مثال: غرفة ثنائية + طفل مع سرير = غرفة ثلاثية). لباقي العروض يرجى الاستفسار.</p>
+          <p>تُطبق على عروض ديسمبر وعرض أكتوبر – نوفمبر (في عرض أكتوبر – نوفمبر يُخصم 15.000 دج للطفل مع سرير). الطفل مع سرير يُحتسب سريراً في الغرفة (مثال: غرفة ثنائية + طفل مع سرير = غرفة ثلاثية). لباقي العروض يرجى الاستفسار.</p>
         </div>
       </div>
 

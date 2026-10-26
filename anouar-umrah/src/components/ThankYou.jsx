@@ -8,6 +8,7 @@ export default function ThankYou({ booking, onBack }) {
     ['الفندق', booking.hotel],
     ['الغرفة', booking.room],
     ['تاريخ الانطلاق', booking.departure],
+    ['مطار الانطلاق', booking.airport],
     ['عدد المسافرين', booking.travelers],
     ['المبلغ التقديري', booking.total ? formatDZD(booking.total) : ''],
   ].filter(([, v]) => v);
