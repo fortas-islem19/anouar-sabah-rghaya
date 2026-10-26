@@ -109,7 +109,7 @@ export default function Hotels() {
         <header className="section-head reveal">
           <span className="eyebrow">فنادقنا</span>
           <h2>إقامة مريحة بالقرب من الحرم</h2>
-          <p>صور حقيقية من الفنادق التي نُسكن فيها معتمرينا في مكة المكرمة.</p>
+          <p>صور حقيقية من الفنادق التي نُسكن فيها معتمرينا في مكة المكرمة والمدينة المنورة.</p>
         </header>
 
         <div className="hotel-tabs reveal" role="tablist">
