@@ -58,8 +58,18 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
 
   const offer = offers.find((o) => o.id === form.offerId);
   const hotel = offer?.hotels.find((h) => h.id === form.hotelId) || (offer?.hotels.length === 1 ? offer.hotels[0] : null);
-  const roomPrice = hotel?.rooms?.[form.room] ?? null;
   const availableRooms = hotel ? ROOM_ORDER.filter((r) => hotel.rooms[r]) : [];
+
+  // عدد الأسرّة = البالغون + الأطفال مع سرير (الأطفال بدون سرير لا يُحتسبون).
+  // إذا تجاوز عدد الأسرّة سعة الغرفة المختارة تتحول الغرفة تلقائياً إلى الغرفة الأكبر
+  // (مثال: ثنائية + طفل مع سرير = ثلاثية) ويُحتسب سعر الغرفة الجديدة لكل فرد.
+  const beds = (Number(form.adults) || 0) + (offer?.childrenPricing ? Number(form.withBed) || 0 : 0);
+  const fitsBeds = (r) => ROOM_CAPACITY[r] >= beds;
+  const smallestFit = [...availableRooms].reverse().find(fitsBeds);
+  const room = !form.room ? '' : fitsBeds(form.room) ? form.room : smallestFit || form.room;
+  const roomUpgraded = Boolean(form.room) && room !== form.room;
+  const tooManyBeds = Boolean(form.room) && !fitsBeds(room);
+  const roomPrice = hotel?.rooms?.[room] ?? null;
 
   // اختيار تلقائي للفندق إن وُجد فندق واحد فقط
   useEffect(() => {
@@ -71,7 +81,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
   const estimate = useMemo(() => {
     if (!roomPrice) return null;
     const adults = Number(form.adults) || 0;
-    const lines = [{ label: `${adults} × بالغ (غرفة ${ROOM_LABELS[form.room]})`, value: adults * roomPrice }];
+    const lines = [{ label: `${adults} × بالغ (غرفة ${ROOM_LABELS[room]})`, value: adults * roomPrice }];
     if (offer?.childrenPricing) {
       CHILD_PRICES.forEach((c) => {
         const n = Number(form[c.id]) || 0;
@@ -85,10 +95,10 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
       lines.push({ label: `الإطعام في مكة × ${people}`, value: people * hotel.meals });
     }
     return { lines, total: lines.reduce((s, l) => s + l.value, 0) };
-  }, [roomPrice, form, offer, hotel]);
+  }, [roomPrice, room, form, offer, hotel]);
 
   const totalTravelers = (Number(form.adults) || 0) + (Number(form.baby) || 0) + (Number(form.kid) || 0) + (Number(form.withBed) || 0);
-  const roomCapacityHint = form.room ? ROOM_CAPACITY[form.room] : null;
+  const roomCapacityHint = room ? ROOM_CAPACITY[room] : null;
 
   const validate = () => {
     const e = {};
@@ -116,7 +126,8 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
     L.push('');
     L.push(`العرض: ${offer?.title}`);
     if (hotel && hotel.id !== 'tbd') L.push(`الفندق: ${hotel.name}`);
-    if (form.room) L.push(`الغرفة: ${ROOM_LABELS[form.room]} (${formatDZD(roomPrice)} للشخص)`);
+    if (room) L.push(`الغرفة: ${ROOM_LABELS[room]} (${formatDZD(roomPrice)} للشخص)`);
+    if (roomUpgraded) L.push(`(اختار غرفة ${ROOM_LABELS[form.room]} وتحولت إلى ${ROOM_LABELS[room]} بسبب عدد الأسرّة: ${beds})`);
     if (form.departure) L.push(`تاريخ الانطلاق: ${form.departure}`);
     L.push('');
     L.push(`الاسم: ${form.fullName}`);
@@ -146,8 +157,9 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
     'رقم الطلب': reference,
     'العرض': offer?.title || '',
     'الفندق': hotel && hotel.id !== 'tbd' ? hotel.name : '',
-    'الغرفة': form.room ? ROOM_LABELS[form.room] : '',
+    'الغرفة': room ? ROOM_LABELS[room] : '',
     'سعر الغرفة': roomPrice ?? '',
+    'عدد الأسرّة': beds,
     'تاريخ الانطلاق': form.departure,
     'الاسم واللقب': form.fullName.trim(),
     'الهاتف': `'${form.phone}`,
@@ -181,7 +193,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
       name: form.fullName.trim(),
       offer: offer?.title,
       hotel: hotel && hotel.id !== 'tbd' ? hotel.name : '',
-      room: form.room ? ROOM_LABELS[form.room] : '',
+      room: room ? ROOM_LABELS[room] : '',
       departure: form.departure,
       travelers: totalTravelers,
       total: estimate?.total ?? null,
@@ -211,6 +223,21 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
 
   const Err = ({ k }) => (errors[k] ? <span className="field-error">{errors[k]}</span> : null);
 
+  const RoomNotice = () => {
+    if (tooManyBeds) {
+      return <p className="hint hint-room">عدد الأسرّة ({beds}) أكبر من سعة أكبر غرفة متوفرة، سيتواصل معك فريق الوكالة لتوزيعكم على أكثر من غرفة.</p>;
+    }
+    if (roomUpgraded) {
+      return (
+        <p className="hint hint-room">
+          اخترت غرفة <b>{ROOM_LABELS[form.room]}</b>، ومع {beds} أسرّة (البالغون + الأطفال مع سرير) تحولت إلى غرفة <b>{ROOM_LABELS[room]}</b>،
+          ويُحتسب سعر الغرفة ال{ROOM_LABELS[room]} ({formatDZD(roomPrice)}) لكل فرد.
+        </p>
+      );
+    }
+    return null;
+  };
+
   return (
     <section className="section booking" id="booking">
       <div className="container booking-grid">
@@ -225,7 +252,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
               <>
                 <p className="sum-offer">{offer.title}</p>
                 {hotel && hotel.id !== 'tbd' && <p className="sum-line">{hotel.name}</p>}
-                {form.room && <p className="sum-line">غرفة {ROOM_LABELS[form.room]} — {formatDZD(roomPrice)} / للشخص</p>}
+                {room && <p className="sum-line">غرفة {ROOM_LABELS[room]} — {formatDZD(roomPrice)} / للشخص</p>}
                 {form.departure && <p className="sum-line">الانطلاق: {form.departure}</p>}
                 <p className="sum-line">عدد المسافرين: {totalTravelers}</p>
                 {estimate ? (
@@ -294,8 +321,8 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
                 <label>نوع الغرفة</label>
                 <div className="room-grid">
                   {availableRooms.map((r) => (
-                    <label key={r} className={`room-option ${form.room === r ? 'checked' : ''}`}>
-                      <input type="radio" name="room" checked={form.room === r} onChange={() => set('room', r)} />
+                    <label key={r} className={`room-option ${room === r ? 'checked' : ''} ${fitsBeds(r) ? '' : 'too-small'}`} title={fitsBeds(r) ? undefined : `لا تتسع لـ ${beds} أسرّة`}>
+                      <input type="radio" name="room" checked={room === r} onChange={() => set('room', r)} />
                       <span className="room-people" aria-hidden="true">{'●'.repeat(ROOM_CAPACITY[r])}</span>
                       <strong>{ROOM_LABELS[r]}</strong>
                       <b>{formatDZD(hotel.rooms[r])}</b>
@@ -303,6 +330,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
                   ))}
                 </div>
                 <Err k="room" />
+                <RoomNotice />
               </div>
             )}
 
@@ -373,8 +401,9 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
               )}
             </div>
             <Err k="adults" />
-            {roomCapacityHint && totalTravelers > 1 && totalTravelers < roomCapacityHint && (
-              <p className="hint">الغرفة {ROOM_LABELS[form.room]} تتسع لـ {roomCapacityHint} أشخاص، وقد تُشارك مع معتمرين آخرين من نفس الجنس.</p>
+            <RoomNotice />
+            {roomCapacityHint && beds > 1 && beds < roomCapacityHint && (
+              <p className="hint">الغرفة {ROOM_LABELS[room]} تتسع لـ {roomCapacityHint} أشخاص، وقد تُشارك مع معتمرين آخرين من نفس الجنس.</p>
             )}
 
             {hotel?.meals && (
