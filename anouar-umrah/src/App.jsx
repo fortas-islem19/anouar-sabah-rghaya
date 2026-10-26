@@ -57,7 +57,7 @@ export default function App() {
           <ThankYou booking={booking} onBack={backHome} />
         ) : (
           <>
-            <Hero />
+            <Hero onChoose={chooseOffer} />
             <Features />
             <Offers onChoose={chooseOffer} />
             <Testimonials />

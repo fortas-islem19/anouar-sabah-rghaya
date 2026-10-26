@@ -58,7 +58,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
 
   const offer = offers.find((o) => o.id === form.offerId);
   const hotel = offer?.hotels.find((h) => h.id === form.hotelId) || (offer?.hotels.length === 1 ? offer.hotels[0] : null);
-  const availableRooms = hotel ? ROOM_ORDER.filter((r) => hotel.rooms[r]) : [];
+  const availableRooms = hotel ? ROOM_ORDER.filter((r) => r in hotel.rooms) : [];
 
   // عدد الأسرّة = البالغون + الأطفال مع سرير (الأطفال بدون سرير لا يُحتسبون).
   // إذا تجاوز عدد الأسرّة سعة الغرفة المختارة تتحول الغرفة تلقائياً إلى الغرفة الأكبر
@@ -264,7 +264,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
                     <small>المبلغ تقديري ويُؤكَّد من طرف الوكالة.</small>
                   </div>
                 ) : (
-                  <small className="muted">{hotel?.id === 'tbd' ? 'سيتم إعلامك بالسعر عند الاتصال.' : 'اختر نوع الغرفة لحساب المبلغ.'}</small>
+                  <small className="muted">{hotel?.id === 'tbd' || (room && roomPrice == null) ? 'سيتم إعلامك بالسعر عند الاتصال.' : 'اختر نوع الغرفة لحساب المبلغ.'}</small>
                 )}
               </>
             ) : (

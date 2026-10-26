@@ -1,5 +1,6 @@
 // العروض المتوفرة — مأخوذة من ملصقات الوكالة.
 // price: بالدينار الجزائري. null = السعر عند الاتصال.
+// featured: العرض الذي يظهر أولاً في أعلى الصفحة.
 
 export const ROOM_LABELS = {
   single: 'أحادية',
@@ -18,6 +19,31 @@ export const CHILD_PRICES = [
 ];
 
 export const offers = [
+  {
+    id: 'golden-nov',
+    featured: true,
+    badge: 'العرض الذهبي',
+    title: 'فرصة الأنوار الذهبية لشهر نوفمبر',
+    subtitle: 'من 01 إلى 30 نوفمبر – عمرتين في عمرة',
+    period: 'نوفمبر',
+    departures: ['من 01 إلى 30 نوفمبر'],
+    poster: './images/offer-golden-nov.jpg',
+    childrenPricing: true,
+    highlights: [
+      'عمرتين في عمرة واحدة',
+      'مكة المكرمة: فندق ريان الجوار',
+      'المدينة المنورة: فندق معين طيبة',
+      'أسعار باقي الغرف عند الاتصال',
+    ],
+    hotels: [
+      {
+        id: 'rayan-moein',
+        name: 'فندق ريان الجوار (مكة) + فندق معين طيبة (المدينة)',
+        // الملصق يذكر «ابتداءً من 169.000 دج» فقط؛ باقي الغرف عند الاتصال
+        rooms: { quint: 169000, quad: null, triple: null, double: null },
+      },
+    ],
+  },
   {
     id: 'dec-holiday',
     badge: '14 – 24 ديسمبر',
@@ -103,7 +129,7 @@ export const offers = [
 ];
 
 export const minPrice = (offer) => {
-  const all = offer.hotels.flatMap((h) => Object.values(h.rooms));
+  const all = offer.hotels.flatMap((h) => Object.values(h.rooms)).filter((v) => v != null);
   return all.length ? Math.min(...all) : null;
 };
 

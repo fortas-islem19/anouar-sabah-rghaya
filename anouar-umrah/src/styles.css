@@ -496,3 +496,7 @@ legend span { width: 34px; height: 34px; border-radius: 50%; display: grid; plac
 /* غرفة لا تتسع لعدد الأسرّة المختار */
 .room-option.too-small { opacity: .45; }
 .hint-room { background: #eef5ff; border-inline-start: 4px solid var(--blue); margin-top: 10px; }
+
+/* العرض الذهبي المميز */
+.offer-card.featured { border: 3px solid var(--yellow); box-shadow: 0 0 0 4px rgba(255,194,14,.25), var(--shadow-lg); }
+.offer-card.featured .offer-badge { background: linear-gradient(135deg, #ffd84a, #e0a100); color: var(--navy); }
