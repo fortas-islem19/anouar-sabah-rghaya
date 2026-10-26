@@ -2,9 +2,10 @@ import { agency } from '../data/agency.js';
 import { offers, minPrice, formatDZD } from '../data/offers.js';
 import { Plane, Calendar, Coins } from './Icons.jsx';
 
-const lowest = Math.min(...offers.map(minPrice).filter(Boolean));
+const featured = offers.find((o) => o.featured) || offers[0];
+const lowest = minPrice(featured) ?? Math.min(...offers.map(minPrice).filter(Boolean));
 
-export default function Hero() {
+export default function Hero({ onChoose }) {
   return (
     <section className="hero" id="top">
       <div className="hero-bg" aria-hidden="true">
@@ -17,17 +18,17 @@ export default function Hero() {
           <p className="slogan-brush">{agency.slogan}</p>
 
           <h1 className="hero-title">
-            <span className="brush brush-blue">عروض العمرة</span>
-            <span className="brush brush-yellow">أكتوبر / نوفمبر</span>
+            <span className="brush brush-blue">فرصة الأنوار الذهبية</span>
+            <span className="brush brush-yellow">لشهر نوفمبر</span>
           </h1>
 
           <p className="hero-lead">
-            رحلة إيمانية بأمان وراحة مع <strong>{agency.name}</strong> – {agency.branch}.
-            برامج 7 أيام، 15 يوماً و19 يوماً (عمرتان في عمرة واحدة) مع رحلات مباشرة.
+            عمرتين في عمرة واحدة من 01 إلى 30 نوفمبر مع <strong>{agency.name}</strong> – {agency.branch}.
+            الإقامة في فندق ريان الجوار بمكة المكرمة وفندق معين طيبة بالمدينة المنورة.
           </p>
 
           <div className="hero-durations">
-            {['7 أيام', '15 يوماً', '19 يوماً'].map((d) => (
+            {['01 – 30 نوفمبر', 'عمرتين في عمرة', 'مكة + المدينة'].map((d) => (
               <span key={d} className="duration-chip"><Calendar width="18" height="18" />{d}</span>
             ))}
           </div>
@@ -39,7 +40,7 @@ export default function Hero() {
           </div>
 
           <div className="hero-actions">
-            <a href="#booking" className="btn btn-yellow btn-lg">سجّل الآن واحجز مقعدك</a>
+            <a href="#booking" className="btn btn-yellow btn-lg" onClick={() => onChoose?.(featured.id)}>سجّل الآن واحجز مقعدك</a>
             <a href="#offers" className="btn btn-ghost btn-lg">اكتشف العروض</a>
           </div>
 
@@ -54,8 +55,8 @@ export default function Hero() {
             <img src="./images/hero-kaaba.jpg" alt="الكعبة المشرفة والمسجد الحرام" />
           </div>
           <div className="hero-badge">
-            <strong>19</strong>
-            <span>يوماً<br />عمرتان في عمرة واحدة</span>
+            <strong>2</strong>
+            <span>عمرتين<br />في عمرة واحدة</span>
           </div>
           <img className="hero-logo-float" src="./images/logo.png" alt="" aria-hidden="true" />
         </div>

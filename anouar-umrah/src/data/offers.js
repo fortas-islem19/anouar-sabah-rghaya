@@ -1,5 +1,7 @@
 // العروض المتوفرة — مأخوذة من ملصقات الوكالة.
 // price: بالدينار الجزائري. null = السعر عند الاتصال.
+// featured: العرض الذي يظهر أولاً في أعلى الصفحة.
+// fromPrice: سعر «ابتداءً من» للعروض التي لا تُفصّل أسعار الغرف (بدون اختيار نوع الغرفة).
 
 export const ROOM_LABELS = {
   single: 'أحادية',
@@ -19,19 +21,66 @@ export const CHILD_PRICES = [
 
 export const offers = [
   {
-    id: 'week-oct',
-    badge: '7 أيام',
-    title: 'عمرة أسبوع',
-    subtitle: 'في شهر أكتوبر',
-    period: 'أكتوبر',
-    departures: ['13 أكتوبر', '29 أكتوبر'],
-    poster: './images/offer-week.jpg',
-    highlights: ['رحلات مباشرة مع الخطوط السعودية', 'برنامج متوازن بين العبادة والراحة', 'تنظيم محكم ومتابعة مستمرة'],
+    id: 'golden-nov',
+    featured: true,
+    badge: 'العرض الذهبي',
+    title: 'فرصة الأنوار الذهبية لشهر نوفمبر',
+    subtitle: 'من 01 إلى 30 نوفمبر – عمرتين في عمرة',
+    period: 'نوفمبر',
+    departures: ['من 01 إلى 30 نوفمبر'],
+    poster: './images/offer-golden-nov.jpg',
+    fromPrice: 169000,
+    highlights: [
+      'عمرتين في عمرة واحدة',
+      'مكة المكرمة: فندق ريان الجوار',
+      'المدينة المنورة: فندق معين طيبة',
+    ],
     hotels: [
       {
-        id: 'standard',
-        name: 'الفندق حسب البرنامج',
-        rooms: { quint: 182000, quad: 188000, triple: 199000, double: 219000 },
+        id: 'rayan-moein',
+        name: 'فندق ريان الجوار (مكة) + فندق معين طيبة (المدينة)',
+        rooms: {},
+      },
+    ],
+  },
+  {
+    id: 'dec-holiday',
+    badge: '14 – 24 ديسمبر',
+    title: 'عمرة عطلة ديسمبر',
+    subtitle: 'في الفترة الممتدة من 14 إلى 24 ديسمبر – فندقان للاختيار',
+    period: 'ديسمبر',
+    departures: ['14 ديسمبر'],
+    poster: './images/offer-dec-holiday-rayan.jpg',
+    highlights: ['رحلات مباشرة وتنقلات مريحة', 'فندق ريان الجوار أو فندق إنفينيتي 5 نجوم بمكة المكرمة', 'تنظيم محكم ورعاية دائمة'],
+    hotels: [
+      {
+        id: 'rayan',
+        name: 'فندق ريان الجوار – مكة المكرمة',
+        rooms: { quint: 253000, quad: 263000, triple: 280000, double: 315000, single: 370000 },
+      },
+      {
+        id: 'infinity',
+        name: 'فندق إنفينيتي 5 نجوم',
+        stars: 5,
+        rooms: { quint: 283000, quad: 302000, triple: 332000, double: 395000, single: 440000 },
+      },
+    ],
+  },
+  {
+    id: 'dec-infinity',
+    badge: 'ديسمبر',
+    title: 'عمرة ديسمبر',
+    subtitle: 'من 01 إلى 13 ديسمبر ومن 25 إلى 31 ديسمبر – إقامة فاخرة في فندق إنفينيتي',
+    period: 'ديسمبر',
+    departures: ['01 ديسمبر', '25 ديسمبر'],
+    poster: './images/offer-dec-infinity.jpg',
+    highlights: ['فندق إنفينيتي 5 نجوم قريب من الحرم', 'إقامة مريحة وفندق راقي', 'خدمة متميزة وتنظيم محكم'],
+    hotels: [
+      {
+        id: 'infinity',
+        name: 'فندق إنفينيتي 5 نجوم',
+        stars: 5,
+        rooms: { quint: 253000, quad: 272000, triple: 302000, double: 365000, single: 410000 },
       },
     ],
   },
@@ -80,6 +129,7 @@ export const offers = [
 
 export const minPrice = (offer) => {
   const all = offer.hotels.flatMap((h) => Object.values(h.rooms));
+  if (offer.fromPrice) all.push(offer.fromPrice);
   return all.length ? Math.min(...all) : null;
 };
 

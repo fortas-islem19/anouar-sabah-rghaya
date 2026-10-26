@@ -31,7 +31,7 @@ export default function Offers({ onChoose }) {
           {offers.map((offer, i) => {
             const from = minPrice(offer);
             return (
-              <article className="offer-card reveal" style={{ '--i': i }} key={offer.id}>
+              <article className={`offer-card reveal ${offer.featured ? 'featured' : ''}`} style={{ '--i': i }} key={offer.id}>
                 <button className="offer-media" onClick={() => setPoster(offer)} aria-label={`عرض ملصق ${offer.title}`}>
                   <img src={offer.poster} alt={offer.title} loading="lazy" />
                   <span className="offer-badge">{offer.badge}</span>
@@ -86,7 +86,7 @@ export default function Offers({ onChoose }) {
             <div><small>من 2 إلى 12 سنة (بدون سرير)</small><b>150.000 دج</b></div>
             <div><small>الطفل مع سرير</small><b>خصم 15.000 دج</b></div>
           </div>
-          <p>تُطبق على عرض أكتوبر – نوفمبر (فندق ريان الجوار وفندق إنفينيتي). لباقي العروض يرجى الاستفسار.</p>
+          <p>تُطبق على عرض أكتوبر – نوفمبر. الطفل مع سرير يُحتسب سريراً في الغرفة (مثال: غرفة ثنائية + طفل مع سرير = غرفة ثلاثية). لباقي العروض يرجى الاستفسار.</p>
         </div>
       </div>
 
