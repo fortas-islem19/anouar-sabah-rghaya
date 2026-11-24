@@ -1,6 +1,7 @@
 import { agency } from '../data/agency.js';
 import { formatDZD } from '../data/offers.js';
 import { Check, Phone, WhatsApp } from './Icons.jsx';
+import Receipt from './Receipt.jsx';
 
 export default function ThankYou({ booking, onBack }) {
   const rows = [
@@ -31,7 +32,13 @@ export default function ThankYou({ booking, onBack }) {
             <b dir="ltr">{booking.reference}</b>
           </div>
 
-          {rows.length > 0 && (
+          {booking.receipt ? (
+            <>
+              <Receipt receipt={booking.receipt} />
+              <button className="btn btn-blue receipt-btn" onClick={() => window.print()}>تحميل الوصل (PDF)</button>
+              <p className="receipt-hint">في نافذة الطباعة اختر «حفظ كملف PDF» (Save as PDF).</p>
+            </>
+          ) : rows.length > 0 && (
             <dl className="thanks-summary">
               {rows.map(([k, v]) => (
                 <div key={k}><dt>{k}</dt><dd>{v}</dd></div>

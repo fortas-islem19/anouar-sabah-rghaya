@@ -517,3 +517,40 @@ legend span { width: 34px; height: 34px; border-radius: 50%; display: grid; plac
   .announce em { display: none; }
   .announce img { width: 56px; height: 76px; }
 }
+
+/* ===== وصل الحجز ===== */
+.receipt { text-align: start; background: #fff; border: 1px solid var(--line); border-top: 6px solid var(--yellow); border-radius: 16px; padding: 22px; margin: 0 0 16px; color: var(--ink); }
+.receipt-head { display: flex; align-items: center; gap: 14px; padding-bottom: 14px; border-bottom: 2px solid var(--navy); }
+.receipt-head img { width: 70px; height: 70px; object-fit: contain; }
+.receipt-head strong { display: block; color: var(--navy); font-size: 1.15rem; font-weight: 900; }
+.receipt-head small { display: block; color: var(--muted); font-size: .82rem; line-height: 1.5; }
+.receipt-title { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; }
+.receipt-title h2 { margin: 0; font-size: 1.25rem; font-weight: 900; color: var(--navy); }
+.receipt-title div { display: flex; flex-direction: column; font-size: .85rem; color: var(--muted); }
+.receipt-title b { color: var(--navy); }
+.receipt-sec { margin-top: 12px; }
+.receipt-sec h3 { margin: 0 0 4px; font-size: .95rem; font-weight: 900; color: #fff; background: var(--navy); padding: 4px 12px; border-radius: 8px; }
+.receipt-sec dl { margin: 0; }
+.receipt-sec dl div { display: flex; justify-content: space-between; gap: 12px; padding: 6px 4px; border-bottom: 1px dashed var(--line); font-size: .92rem; }
+.receipt-sec dt { color: var(--muted); font-weight: 700; }
+.receipt-sec dd { margin: 0; font-weight: 800; color: var(--navy); text-align: end; }
+.receipt-sec table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.receipt-sec td { padding: 6px 4px; border-bottom: 1px dashed var(--line); }
+.receipt-sec td:last-child { text-align: end; font-weight: 800; color: var(--navy); white-space: nowrap; }
+.receipt-sec tfoot td { border: 0; background: var(--yellow-soft); font-weight: 900; color: var(--navy); font-size: 1rem; }
+.receipt-foot { margin-top: 14px; font-size: .78rem; color: var(--muted); line-height: 1.7; }
+.receipt-btn { margin-bottom: 4px; }
+.receipt-hint { font-size: .8rem; color: var(--muted); margin: 0 0 14px; }
+
+@media print {
+  @page { size: A4; margin: 10mm; }
+  html, body { background: #fff !important; }
+  .site-header, .site-footer, footer:not(.receipt-foot), .wa-fab, .hero-bg, .thanks-card > :not(.receipt) { display: none !important; }
+  .thanks, .thanks .container, .thanks-card { padding: 0 !important; margin: 0 !important; min-height: 0 !important; background: none !important; box-shadow: none !important; border: 0 !important; width: auto !important; max-width: none !important; }
+  .receipt { margin: 0; border: 0; border-top: 6px solid var(--yellow); border-radius: 0; padding: 10px 4px 0; font-size: 11px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .receipt-sec { break-inside: avoid; }
+  .receipt-sec dl div, .receipt-sec td { padding-block: 2px; font-size: 11px; }
+  .receipt-sec { margin-top: 8px; }
+  .receipt-sec h3 { font-size: 12px; padding: 2px 10px; }
+  .receipt-head img { width: 56px; height: 56px; }
+}

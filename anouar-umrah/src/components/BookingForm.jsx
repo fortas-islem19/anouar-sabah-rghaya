@@ -105,7 +105,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
   }, [roomPrice, room, form, offer, hotel]);
 
   const chosenMeals = (hotel?.meals || []).filter((m) => form.meals[m.id]);
-  const mealsText = chosenMeals.length ? chosenMeals.map((m) => m.label).join(' + ') : 'لا';
+  const mealsText = chosenMeals.length ? chosenMeals.map((m) => (m.label === 'الإطعام' ? 'نعم' : m.label)).join(' + ') : 'لا';
 
   const totalTravelers = (Number(form.adults) || 0) + (Number(form.baby) || 0) + (Number(form.kid) || 0) + (Number(form.withBed) || 0);
   const roomCapacityHint = room ? ROOM_CAPACITY[room] : null;
@@ -191,6 +191,46 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
     'ملاحظات': form.notes.trim(),
   });
 
+  // وصل الحجز: نفس المحتوى للزبون (صفحة الشكر، PDF) وللوكالة (PDF في Google Drive عبر Apps Script)
+  const buildReceipt = (reference) => {
+    const keep = (rows) => rows.filter(([, v]) => v !== '' && v != null && v !== 0);
+    const kids = offer?.childrenPricing
+      ? [['أطفال 0–2 سنة', Number(form.baby) || 0], ['أطفال 2–12 سنة (بدون سرير)', Number(form.kid) || 0], ['أطفال مع سرير', Number(form.withBed) || 0]]
+      : [];
+    return {
+      reference,
+      agency: { name: agency.name, branch: agency.branch, address: agency.address, phones: agency.phones },
+      date: new Date().toLocaleString('fr-DZ', { timeZone: 'Africa/Algiers', dateStyle: 'short', timeStyle: 'short' }),
+      sections: [
+        { title: 'معلومات الزبون', rows: keep([
+          ['الاسم واللقب', form.fullName.trim()],
+          ['الهاتف', form.phone],
+          ['واتساب', form.whatsappSame ? form.phone : form.whatsapp],
+          ['الولاية / البلدية', `${form.wilaya} – ${form.commune.trim()}`],
+          ['جواز السفر', { yes: 'ساري المفعول', expiring: 'ينتهي قريباً', no: 'لا يملك' }[form.passport]],
+          ['أول عمرة', form.firstUmrah === 'yes' ? 'نعم' : 'لا'],
+        ]) },
+        { title: 'تفاصيل الرحلة', rows: keep([
+          ['العرض', offer?.title],
+          ['الفندق', hotel && hotel.id !== 'tbd' ? hotel.name : ''],
+          ['الغرفة', room ? `${ROOM_LABELS[room]}${roomUpgraded ? ` (اختار ${ROOM_LABELS[form.room]}${withBedN ? ` + ${withBedN} طفل مع سرير` : ''})` : ''}` : ''],
+          ['تاريخ الانطلاق', form.departure],
+          ['مطار الانطلاق', form.airport],
+          ['الإطعام', hotel?.meals ? mealsText : ''],
+        ]) },
+        { title: 'المسافرون والدفع', rows: keep([
+          ['البالغون', adultsN],
+          ...kids,
+          ['مجموع المسافرين', totalTravelers],
+          ['طريقة الدفع', form.payment === 'cash' ? 'دفعة واحدة' : 'بالتقسيط'],
+          ['ملاحظات', form.notes.trim()],
+        ]) },
+      ],
+      lines: estimate?.lines.map((l) => [l.label, formatDZD(l.value)]) || [],
+      total: estimate ? formatDZD(estimate.total) : '',
+    };
+  };
+
   const waUrl = (reference) => `https://wa.me/${agency.whatsapp}?text=${encodeURIComponent(buildMessage(reference))}`;
 
   const submit = async (e) => {
@@ -211,8 +251,10 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
       value: estimate?.total || (offer && minPrice(offer)) || 0,
       currency: 'DZD',
     };
+    const receipt = buildReceipt(reference);
     const done = () => { track(META_EVENT, leadParams, reference); onSuccess({
       reference,
+      receipt,
       name: form.fullName.trim(),
       offer: offer?.title,
       hotel: hotel && hotel.id !== 'tbd' ? hotel.name : '',
@@ -233,16 +275,24 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
     try {
       // no-cors + text/plain: الطريقة الموثوقة لإرسال البيانات إلى Google Apps Script من المتصفح
       // (Google لا يسمح بقراءة الرد، لذا نعتبر الإرسال ناجحاً ما لم يحدث خطأ في الشبكة)
-      await fetch(agency.bookingEndpoint, {
+      const request = fetch(agency.bookingEndpoint, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        // _meta: لا يُكتب في الجدول، يستعمله Apps Script لإرسال الحجز إلى Conversions API
+        // _meta: لا يُكتب في الجدول، يستعمله Apps Script لـ Conversions API ولإنشاء وصل PDF
         body: JSON.stringify({
           ...buildSheetRow(reference),
-          _meta: { eventName: META_EVENT, eventId: reference, phone: form.phone, fullName: form.fullName.trim(), wilaya: form.wilaya, ...leadParams, ...browserIds() },
+          _meta: {
+            eventName: META_EVENT, eventId: reference, phone: form.phone, fullName: form.fullName.trim(), wilaya: form.wilaya,
+            ...leadParams, ...browserIds(),
+            receipt,
+            logoUrl: new URL('./images/logo.png', window.location.href).href,
+          },
         }),
       });
+      // إنشاء الوصل في Apps Script يأخذ بضع ثوانٍ: لا ننتظره أكثر من 3 ثوانٍ (يكتمل الإرسال في الخلفية)
+      request.catch(() => {});
+      await Promise.race([request, new Promise((r) => setTimeout(r, 3000))]);
       done();
     } catch {
       setStatus('error');
