@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react';
 import { offers, announcements, minPrice, formatDZD, ROOM_LABELS } from '../data/offers.js';
 import { Calendar, Check, Close, Star } from './Icons.jsx';
+import { track } from '../lib/pixel.js';
+
+const viewOffer = (offer) => track('ViewContent', {
+  content_name: offer.title,
+  content_ids: [offer.id],
+  content_type: 'product',
+  value: minPrice(offer) || undefined,
+  currency: 'DZD',
+});
 
 const ROOM_ORDER = ['quint', 'quad', 'triple', 'double'];
 
@@ -44,7 +53,7 @@ export default function Offers({ onChoose }) {
             return (
               <article className={`offer-card reveal ${offer.featured ? 'featured' : ''}`} style={{ '--i': i }} key={offer.id}>
                 {offer.poster ? (
-                  <button className="offer-media" onClick={() => setPoster(offer)} aria-label={`عرض ملصق ${offer.title}`}>
+                  <button className="offer-media" onClick={() => { setPoster(offer); viewOffer(offer); }} aria-label={`عرض ملصق ${offer.title}`}>
                     <img src={offer.poster} alt={offer.title} loading="lazy" />
                     <span className="offer-badge">{offer.badge}</span>
                     <span className="offer-zoom">عرض الملصق</span>
@@ -90,7 +99,7 @@ export default function Offers({ onChoose }) {
                       <small>ابتداءً من</small>
                       <strong>{formatDZD(from)}</strong>
                     </div>
-                    <button className="btn btn-blue" onClick={() => onChoose(offer.id)}>احجز هذا العرض</button>
+                    <button className="btn btn-blue" onClick={() => { viewOffer(offer); onChoose(offer.id); }}>احجز هذا العرض</button>
                   </div>
                 </div>
               </article>

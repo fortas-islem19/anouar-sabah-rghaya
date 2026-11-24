@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { agency } from '../data/agency.js';
 import { offers, ROOM_LABELS, ROOM_CAPACITY, CHILD_PRICES, formatDZD } from '../data/offers.js';
 import { WhatsApp } from './Icons.jsx';
+import { track, browserIds } from '../lib/pixel.js';
 
 const ROOM_ORDER = ['quint', 'quad', 'triple', 'double'];
 
@@ -195,7 +196,13 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
     const reference = `AS-${Date.now().toString(36).toUpperCase().slice(-6)}`;
     setRef(reference);
 
-    const done = () => onSuccess({
+    const leadParams = {
+      content_name: offer?.title,
+      content_ids: offer ? [offer.id] : [],
+      value: estimate?.total || undefined,
+      currency: 'DZD',
+    };
+    const done = () => { track('Lead', leadParams, reference); onSuccess({
       reference,
       name: form.fullName.trim(),
       offer: offer?.title,
@@ -205,7 +212,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
       airport: form.airport,
       travelers: totalTravelers,
       total: estimate?.total ?? null,
-    });
+    }); };
 
     // بدون رابط Google Sheets: الإرسال عبر واتساب فقط
     if (!agency.bookingEndpoint) {
@@ -221,7 +228,11 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(buildSheetRow(reference)),
+        // _meta: لا يُكتب في الجدول، يستعمله Apps Script لإرسال الحجز إلى Conversions API
+        body: JSON.stringify({
+          ...buildSheetRow(reference),
+          _meta: { eventId: reference, phone: form.phone, fullName: form.fullName.trim(), wilaya: form.wilaya, ...leadParams, ...browserIds() },
+        }),
       });
       done();
     } catch {
