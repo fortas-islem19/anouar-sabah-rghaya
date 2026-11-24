@@ -36,7 +36,7 @@ export const offers = [
     subtitle: 'رحلتان متاحتان – رحلة مباشرة مع الخطوط السعودية',
     period: 'ديسمبر',
     departures: ['09 ديسمبر', '13 ديسمبر'],
-    poster: null,
+    poster: './images/offer-dec09-13-jada.jpg',
     highlights: [SAUDIA, 'الانطلاق من مطار الجزائر باتجاه جدة', 'الإقامة في فندق جادة أجياد', 'الإطعام اختياري في مكة والمدينة'],
     hotels: [
       {
@@ -54,7 +54,7 @@ export const offers = [
     subtitle: 'رحلة مباشرة مع الخطوط السعودية',
     period: 'ديسمبر',
     departures: ['12 ديسمبر'],
-    poster: null,
+    poster: './images/offer-dec12-salah.jpg',
     highlights: [SAUDIA, 'الإقامة في فندق الصلاح أجياد', 'الإطعام اختياري في مكة والمدينة'],
     hotels: [
       {
@@ -133,7 +133,7 @@ export const offers = [
     subtitle: 'يعود إليكم من جديد في شهر ديسمبر',
     period: 'ديسمبر',
     departures: ['ديسمبر – حسب الرزنامة'],
-    poster: null,
+    poster: './images/offer-two-umrah-dec.jpg',
     highlights: ['عمرتين في عمرة واحدة', 'التفاصيل والأسعار عند الاتصال بالوكالة'],
     hotels: [{ id: 'tbd', name: 'السعر عند الاتصال', rooms: {} }],
   },
@@ -145,7 +145,7 @@ export const offers = [
     period: 'جانفي 2027',
     departures: ['من 10 إلى 31 جانفي 2027'],
     airports: ['مطار الجزائر', 'مطار قسنطينة', 'مطار أدرار', 'مطار وهران'],
-    poster: null,
+    poster: './images/offer-shaban-1448.jpg',
     childrenPricing: true,
     highlights: [
       'الانطلاق من مطارات الجزائر – قسنطينة – أدرار – وهران',
