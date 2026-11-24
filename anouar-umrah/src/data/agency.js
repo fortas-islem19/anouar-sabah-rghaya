@@ -19,6 +19,8 @@ export const agency = {
     tiktok: 'https://www.tiktok.com/',
   },
   socialHandle: 'أنوار الصباح رغاية',
+  // رقم بيكسل ميتا (فيسبوك). اتركه فارغاً لإيقاف التتبع.
+  metaPixelId: '2176585779919271',
   // رابط موقع المحل على خرائط Google
   mapsUrl: 'https://maps.app.goo.gl/qCGuNnXPQ11C8hVx6',
 };
