@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { agency } from '../data/agency.js';
-import { offers, ROOM_LABELS, ROOM_CAPACITY, CHILD_PRICES, formatDZD } from '../data/offers.js';
+import { offers, ROOM_LABELS, ROOM_CAPACITY, CHILD_PRICES, formatDZD, minPrice } from '../data/offers.js';
 import { WhatsApp } from './Icons.jsx';
 import { track, browserIds } from '../lib/pixel.js';
 
@@ -196,13 +196,18 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
     const reference = `AS-${Date.now().toString(36).toUpperCase().slice(-6)}`;
     setRef(reference);
 
+    // حدث الحجز في ميتا: Purchase (يتطلب قيمة وعملة). القيمة = المبلغ التقديري،
+    // أو سعر «ابتداءً من» للعرض إن لم يُحسب مبلغ (العروض بالسعر عند الاتصال = 0).
+    const META_EVENT = 'Purchase';
     const leadParams = {
       content_name: offer?.title,
       content_ids: offer ? [offer.id] : [],
-      value: estimate?.total || undefined,
+      content_type: 'product',
+      num_items: totalTravelers,
+      value: estimate?.total || (offer && minPrice(offer)) || 0,
       currency: 'DZD',
     };
-    const done = () => { track('Lead', leadParams, reference); onSuccess({
+    const done = () => { track(META_EVENT, leadParams, reference); onSuccess({
       reference,
       name: form.fullName.trim(),
       offer: offer?.title,
@@ -231,7 +236,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
         // _meta: لا يُكتب في الجدول، يستعمله Apps Script لإرسال الحجز إلى Conversions API
         body: JSON.stringify({
           ...buildSheetRow(reference),
-          _meta: { eventId: reference, phone: form.phone, fullName: form.fullName.trim(), wilaya: form.wilaya, ...leadParams, ...browserIds() },
+          _meta: { eventName: META_EVENT, eventId: reference, phone: form.phone, fullName: form.fullName.trim(), wilaya: form.wilaya, ...leadParams, ...browserIds() },
         }),
       });
       done();
