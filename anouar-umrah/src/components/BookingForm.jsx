@@ -30,7 +30,7 @@ const initial = {
   baby: 0,
   kid: 0,
   withBed: 0,
-  meals: false,
+  meals: {},
   passport: 'yes',
   firstUmrah: 'yes',
   payment: 'cash',
@@ -52,7 +52,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
   // مزامنة العرض المختار من بطاقات العروض
   useEffect(() => {
     if (selectedOfferId && selectedOfferId !== form.offerId) {
-      setForm((f) => ({ ...f, offerId: selectedOfferId, hotelId: '', room: '', departure: '', airport: '', meals: false }));
+      setForm((f) => ({ ...f, offerId: selectedOfferId, hotelId: '', room: '', departure: '', airport: '', meals: {} }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedOfferId]);
@@ -92,12 +92,15 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
         lines.push({ label: `${n} × ${c.label}`, value: n * unit });
       });
     }
-    if (form.meals && hotel?.meals) {
-      const people = adults + (Number(form.kid) || 0) + (Number(form.withBed) || 0);
-      lines.push({ label: `الإطعام في مكة × ${people}`, value: people * hotel.meals });
-    }
+    const people = adults + (Number(form.kid) || 0) + (Number(form.withBed) || 0);
+    (hotel?.meals || []).filter((m) => form.meals[m.id]).forEach((m) => {
+      lines.push({ label: `${m.label} × ${people}`, value: people * m.price });
+    });
     return { lines, total: lines.reduce((s, l) => s + l.value, 0) };
   }, [roomPrice, room, form, offer, hotel]);
+
+  const chosenMeals = (hotel?.meals || []).filter((m) => form.meals[m.id]);
+  const mealsText = chosenMeals.length ? chosenMeals.map((m) => m.label).join(' + ') : 'لا';
 
   const totalTravelers = (Number(form.adults) || 0) + (Number(form.baby) || 0) + (Number(form.kid) || 0) + (Number(form.withBed) || 0);
   const roomCapacityHint = room ? ROOM_CAPACITY[room] : null;
@@ -144,7 +147,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
       if (+form.kid) L.push(`أطفال 2-12 سنة بدون سرير: ${form.kid}`);
       if (+form.withBed) L.push(`أطفال مع سرير: ${form.withBed}`);
     }
-    if (hotel?.meals) L.push(`الإطعام: ${form.meals ? 'نعم' : 'لا'}`);
+    if (hotel?.meals) L.push(`الإطعام: ${mealsText}`);
     L.push(`جواز سفر ساري: ${form.passport === 'yes' ? 'نعم' : form.passport === 'expiring' ? 'ينتهي قريباً' : 'لا'}`);
     L.push(`أول عمرة: ${form.firstUmrah === 'yes' ? 'نعم' : 'لا'}`);
     L.push(`طريقة الدفع: ${form.payment === 'cash' ? 'دفعة واحدة' : 'بالتقسيط'}`);
@@ -174,7 +177,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
     'أطفال 0-2': Number(form.baby) || 0,
     'أطفال 2-12': Number(form.kid) || 0,
     'أطفال مع سرير': Number(form.withBed) || 0,
-    'الإطعام': hotel?.meals ? (form.meals ? 'نعم' : 'لا') : '',
+    'الإطعام': hotel?.meals ? mealsText : '',
     'جواز السفر': { yes: 'ساري', expiring: 'ينتهي قريباً', no: 'لا يملك' }[form.passport],
     'أول عمرة': form.firstUmrah === 'yes' ? 'نعم' : 'لا',
     'الدفع': form.payment === 'cash' ? 'دفعة واحدة' : 'بالتقسيط',
@@ -297,7 +300,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
                     name="offerId"
                     value={o.id}
                     checked={form.offerId === o.id}
-                    onChange={() => { setForm((f) => ({ ...f, offerId: o.id, hotelId: '', room: '', departure: '', airport: '', meals: false })); onOfferChange(o.id); }}
+                    onChange={() => { setForm((f) => ({ ...f, offerId: o.id, hotelId: '', room: '', departure: '', airport: '', meals: {} })); onOfferChange(o.id); }}
                   />
                   <span className="opt-badge">{o.badge}</span>
                   <strong>{o.title}</strong>
@@ -426,12 +429,12 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
               <p className="hint">الغرفة {ROOM_LABELS[room]} تتسع لـ {roomCapacityHint} أشخاص، وقد تُشارك مع معتمرين آخرين من نفس الجنس.</p>
             )}
 
-            {hotel?.meals && (
-              <label className="check boxed">
-                <input type="checkbox" checked={form.meals} onChange={(e) => set('meals', e.target.checked)} />
-                <span>أريد الإطعام في مكة <b>(+{formatDZD(hotel.meals)} للشخص)</b></span>
+            {hotel?.meals?.map((m) => (
+              <label className="check boxed" key={m.id}>
+                <input type="checkbox" checked={Boolean(form.meals[m.id])} onChange={(e) => set('meals', { ...form.meals, [m.id]: e.target.checked })} />
+                <span>أريد {m.label} <b>(+{formatDZD(m.price)} للشخص)</b></span>
               </label>
-            )}
+            ))}
 
             <div className="row-3">
               <RadioGroup label="جواز السفر" name="passport" value={form.passport} onChange={(v) => set('passport', v)}
