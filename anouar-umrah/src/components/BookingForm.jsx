@@ -62,15 +62,19 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
   const hotel = offer?.hotels.find((h) => h.id === form.hotelId) || (offer?.hotels.length === 1 ? offer.hotels[0] : null);
   const availableRooms = hotel ? ROOM_ORDER.filter((r) => hotel.rooms[r]) : [];
 
-  // عدد الأسرّة = البالغون + الأطفال مع سرير (الأطفال بدون سرير لا يُحتسبون).
-  // إذا تجاوز عدد الأسرّة سعة الغرفة المختارة تتحول الغرفة تلقائياً إلى الغرفة الأكبر
-  // (مثال: ثنائية + طفل مع سرير = ثلاثية) ويُحتسب سعر الغرفة الجديدة لكل فرد.
-  const beds = (Number(form.adults) || 0) + (offer?.childrenPricing ? Number(form.withBed) || 0 : 0);
+  // كل طفل مع سرير يضيف سريراً فوق الغرفة المختارة، فتتحول الغرفة إلى الأكبر ويتغير السعر:
+  // ثنائية + طفل مع سرير = ثلاثية، ثلاثية + طفل = رباعية، رباعية + طفل = خماسية...
+  // (إذا كان عدد البالغين أكبر من سعة الغرفة المختارة يُحتسب عدد البالغين).
+  const adultsN = Number(form.adults) || 0;
+  const withBedN = offer?.childrenPricing ? Number(form.withBed) || 0 : 0;
+  const beds = adultsN + withBedN; // الأشخاص الذين لهم سرير
   const fitsBeds = (r) => ROOM_CAPACITY[r] >= beds;
-  const smallestFit = [...availableRooms].reverse().find(fitsBeds);
-  const room = !form.room ? '' : fitsBeds(form.room) ? form.room : smallestFit || form.room;
+  const neededBeds = form.room ? Math.max(ROOM_CAPACITY[form.room], adultsN) + withBedN : beds;
+  const smallestFit = [...availableRooms].reverse().find((r) => ROOM_CAPACITY[r] >= neededBeds);
+  // لا توجد غرفة أكبر: يُحتسب سعر أكبر غرفة (الخماسية) ويتواصل الفريق للتوزيع
+  const room = !form.room ? '' : smallestFit || availableRooms[0] || form.room;
   const roomUpgraded = Boolean(form.room) && room !== form.room;
-  const tooManyBeds = Boolean(form.room) && !fitsBeds(room);
+  const tooManyBeds = Boolean(form.room) && !smallestFit;
   const roomPrice = hotel?.rooms?.[room] ?? null;
 
   // اختيار تلقائي للفندق إن وُجد فندق واحد فقط
@@ -133,7 +137,7 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
     L.push(`العرض: ${offer?.title}`);
     if (hotel && hotel.id !== 'tbd') L.push(`الفندق: ${hotel.name}`);
     if (room) L.push(`الغرفة: ${ROOM_LABELS[room]} (${formatDZD(roomPrice)} للشخص)`);
-    if (roomUpgraded) L.push(`(اختار غرفة ${ROOM_LABELS[form.room]} وتحولت إلى ${ROOM_LABELS[room]} بسبب عدد الأسرّة: ${beds})`);
+    if (roomUpgraded) L.push(`(اختار غرفة ${ROOM_LABELS[form.room]} وتحولت إلى ${ROOM_LABELS[room]}${withBedN ? ` بسبب ${withBedN} طفل مع سرير` : ' بسبب عدد البالغين'})`);
     if (form.departure) L.push(`تاريخ الانطلاق: ${form.departure}`);
     if (form.airport) L.push(`مطار الانطلاق: ${form.airport}`);
     L.push('');
@@ -249,13 +253,14 @@ export default function BookingForm({ selectedOfferId, onOfferChange, onSuccess 
 
   const RoomNotice = () => {
     if (tooManyBeds) {
-      return <p className="hint hint-room">عدد الأسرّة ({beds}) أكبر من سعة أكبر غرفة متوفرة، سيتواصل معك فريق الوكالة لتوزيعكم على أكثر من غرفة.</p>;
+      return <p className="hint hint-room">الغرفة المطلوبة ({neededBeds} أسرّة) أكبر من أكبر غرفة متوفرة، سيتواصل معك فريق الوكالة لتوزيعكم على أكثر من غرفة.</p>;
     }
     if (roomUpgraded) {
       return (
         <p className="hint hint-room">
-          اخترت غرفة <b>{ROOM_LABELS[form.room]}</b>، ومع {beds} أسرّة (البالغون + الأطفال مع سرير) تحولت إلى غرفة <b>{ROOM_LABELS[room]}</b>،
-          ويُحتسب سعر الغرفة ال{ROOM_LABELS[room]} ({formatDZD(roomPrice)}) لكل فرد.
+          اخترت غرفة <b>{ROOM_LABELS[form.room]}</b>
+          {withBedN ? <> + {withBedN} {withBedN > 1 ? 'أطفال' : 'طفل'} مع سرير</> : <> مع {adultsN} بالغين</>}
+          {' '}= غرفة <b>{ROOM_LABELS[room]}</b>، ويُحتسب سعر الغرفة ال{ROOM_LABELS[room]} ({formatDZD(roomPrice)}) لكل فرد وللطفل مع سرير.
         </p>
       );
     }
