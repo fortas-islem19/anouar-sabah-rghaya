@@ -8,7 +8,7 @@
  *      Who has access: Anyone
  * 4. افتح رابط Web app في المتصفح: يجب أن تظهر رسالة OK
  *
- * Conversions API (اختياري — يرسل كل حجز إلى ميتا من الخادم كحدث Lead):
+ * Conversions API (اختياري — يرسل كل حجز إلى ميتا من الخادم بنفس حدث الموقع، حالياً Purchase):
  *   Project Settings (⚙️) ← Script Properties ← Add script property
  *      Property: META_ACCESS_TOKEN   Value: رمز الوصول من Events Manager
  *   لا تضع الرمز في هذا الملف أبداً.
@@ -74,7 +74,7 @@ function sendMetaLead(meta) {
     };
     const payload = {
       data: [{
-        event_name: 'Lead',
+        event_name: meta.eventName || 'Purchase',
         event_time: Math.floor(Date.now() / 1000),
         event_id: meta.eventId,
         action_source: 'website',
@@ -83,7 +83,9 @@ function sendMetaLead(meta) {
         custom_data: {
           content_name: meta.content_name,
           content_ids: meta.content_ids,
-          value: meta.value,
+          content_type: meta.content_type,
+          num_items: meta.num_items,
+          value: Number(meta.value) || 0,
           currency: meta.currency || 'DZD',
         },
       }],
@@ -109,7 +111,7 @@ function sha256(value) {
 
 // للتجربة من محرّر Apps Script: اختر testMetaLead ثم Run، وتابع النتيجة في Test events
 function testMetaLead() {
-  sendMetaLead({ eventId: 'TEST-' + Date.now(), phone: '0770707501', fullName: 'تجربة اختبار', url: 'https://example.com', value: 223000, currency: 'DZD', content_name: 'TEST' });
+  sendMetaLead({ eventName: 'Purchase', eventId: 'TEST-' + Date.now(), phone: '0770707501', fullName: 'تجربة اختبار', url: 'https://example.com', value: 223000, currency: 'DZD', content_name: 'TEST' });
 }
 
 function getSheet() {
