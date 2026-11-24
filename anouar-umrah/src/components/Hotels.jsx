@@ -15,12 +15,15 @@ function Slider({ hotel }) {
   const next = useCallback(() => setIndex((i) => (i + 1) % photos.length), [photos.length]);
   const prev = useCallback(() => setIndex((i) => (i - 1 + photos.length) % photos.length), [photos.length]);
 
+  // صورة واحدة فقط: بدون أسهم ولا صور مصغّرة ولا تشغيل تلقائي
+  const multi = photos.length > 1;
+
   // تشغيل تلقائي، يتوقف عند مرور الفأرة أو اللمس
   useEffect(() => {
-    if (paused) return undefined;
+    if (paused || !multi) return undefined;
     const t = setTimeout(next, AUTOPLAY_MS);
     return () => clearTimeout(t);
-  }, [index, paused, next]);
+  }, [index, paused, next, multi]);
 
   // إبقاء الصورة المصغّرة النشطة ظاهرة
   useEffect(() => {
@@ -75,13 +78,17 @@ function Slider({ hotel }) {
           </figure>
         ))}
 
-        <button className="slider-arrow prev" onClick={prev} aria-label="الصورة السابقة"><Arrow /></button>
-        <button className="slider-arrow next" onClick={next} aria-label="الصورة التالية"><Arrow /></button>
-
-        <span className="slider-count">{`${index + 1} / ${photos.length}`}</span>
-        <span key={`${index}-${paused}`} className={`slider-progress ${paused ? 'is-paused' : ''}`} style={{ '--ms': `${AUTOPLAY_MS}ms` }} />
+        {multi && (
+          <>
+            <button className="slider-arrow prev" onClick={prev} aria-label="الصورة السابقة"><Arrow /></button>
+            <button className="slider-arrow next" onClick={next} aria-label="الصورة التالية"><Arrow /></button>
+            <span className="slider-count">{`${index + 1} / ${photos.length}`}</span>
+            <span key={`${index}-${paused}`} className={`slider-progress ${paused ? 'is-paused' : ''}`} style={{ '--ms': `${AUTOPLAY_MS}ms` }} />
+          </>
+        )}
       </div>
 
+      {multi && (
       <div className="slider-thumbs" ref={thumbs}>
         {photos.map((p, i) => (
           <button
@@ -95,6 +102,7 @@ function Slider({ hotel }) {
           </button>
         ))}
       </div>
+      )}
     </div>
   );
 }
