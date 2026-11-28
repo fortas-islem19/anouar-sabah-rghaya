@@ -79,6 +79,16 @@ function doPost(e) {
 const NAVY = '#082f5e';
 const YELLOW = '#ffc20e';
 
+// تنسيق النص فقط إن لم يكن فارغاً (Apps Script يرفض تنسيق نص فارغ)
+function styleText(el, o) {
+  const t = el.editAsText();
+  if (!t.getText().length) return;
+  t.setFontFamily('Arial');
+  if (o.size) t.setFontSize(o.size);
+  t.setBold(Boolean(o.bold));
+  if (o.color) t.setForegroundColor(o.color);
+}
+
 function createReceiptPdf(r, logoUrl) {
   const doc = DocumentApp.create('وصل ' + r.reference);
   const body = doc.getBody();
@@ -88,8 +98,7 @@ function createReceiptPdf(r, logoUrl) {
   const para = (text, opts) => {
     const p = body.appendParagraph(text || '');
     p.setLeftToRight(false).setAlignment(opts && opts.center ? DocumentApp.HorizontalAlignment.CENTER : DocumentApp.HorizontalAlignment.RIGHT);
-    p.editAsText().setFontFamily('Cairo').setFontSize((opts && opts.size) || 10).setBold(Boolean(opts && opts.bold))
-      .setForegroundColor((opts && opts.color) || '#0d1f38');
+    styleText(p, { size: (opts && opts.size) || 10, bold: opts && opts.bold, color: (opts && opts.color) || '#0d1f38' });
     p.setSpacingAfter((opts && opts.after) || 2);
     return p;
   };
@@ -114,7 +123,7 @@ function createReceiptPdf(r, logoUrl) {
 
   // جدول لكل قسم: [القيمة، البيان] حتى يظهر البيان على اليمين
   const table = (title, rows, totalRow) => {
-    const data = [['', title]].concat(rows.map((x) => [String(x[1]), String(x[0])]));
+    const data = [[' ', title]].concat(rows.map((x) => [String(x[1]), String(x[0])]));
     if (totalRow) data.push([totalRow[1], totalRow[0]]);
     const t = body.appendTable(data);
     t.setBorderColor('#e3e9f2');
@@ -125,10 +134,14 @@ function createReceiptPdf(r, logoUrl) {
         c.setPaddingTop(3).setPaddingBottom(3);
         const p = c.getChild(0).asParagraph();
         p.setLeftToRight(false).setAlignment(j === 1 ? DocumentApp.HorizontalAlignment.RIGHT : DocumentApp.HorizontalAlignment.LEFT);
-        p.editAsText().setFontFamily('Cairo').setFontSize(10).setBold(j === 0 || i === 0);
-        if (i === 0) { c.setBackgroundColor(NAVY); p.editAsText().setForegroundColor('#ffffff'); }
-        else if (totalRow && i === t.getNumRows() - 1) { c.setBackgroundColor('#fff6d1'); p.editAsText().setBold(true).setForegroundColor(NAVY); }
-        else p.editAsText().setForegroundColor(j === 1 ? '#5b6b82' : NAVY);
+        const isTotal = totalRow && i === t.getNumRows() - 1;
+        if (i === 0) c.setBackgroundColor(NAVY);
+        else if (isTotal) c.setBackgroundColor('#fff6d1');
+        styleText(p, {
+          size: 10,
+          bold: j === 0 || i === 0 || isTotal,
+          color: i === 0 ? '#ffffff' : isTotal || j === 0 ? NAVY : '#5b6b82',
+        });
       }
     }
     para('', { after: 6 });
@@ -170,8 +183,8 @@ function testReceiptPdf() {
     ],
     lines: [['2 × بالغ (غرفة ثلاثية)', '510.000 دج']],
     total: '510.000 دج',
-  }, null);
-  console.log(file.getUrl());
+  }, 'https://raw.githubusercontent.com/fortas-islem19/anouar-sabah-rghaya/main/anouar-umrah/public/images/logo.png');
+  console.log('تم إنشاء الوصل: ' + file.getUrl());
 }
 
 // ===== Conversions API =====
